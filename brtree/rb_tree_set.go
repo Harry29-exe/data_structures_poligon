@@ -1,8 +1,6 @@
 package brtree
 
-import (
-	"data_structures_poligon/utils"
-)
+import . "data_structures_poligon/utils"
 
 type leafColor = uint
 
@@ -11,9 +9,9 @@ const (
 	BLACK
 )
 
-type RBTreeSet[T any, C comparator.Compare[T]] struct {
+type RBTreeSet[T any, C Compare[T]] struct {
 	root        *treeNode[T]
-	compare     comparator.Compare[T]
+	compare     Compare[T]
 	blackHeight uint
 }
 

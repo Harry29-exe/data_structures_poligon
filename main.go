@@ -1,8 +1,6 @@
 package main
 
-import (
-	"data_structures_poligon/linked_list"
-)
+import "data_structures_poligon/linked_list"
 
 func main() {
 	list := linked_list.New[int]()
