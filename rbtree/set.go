@@ -62,6 +62,7 @@ func (tree *Set[T, C]) Insert(value T) {
 					continue
 				}
 				node.left = newNode(value, node)
+				node = node.left
 				break
 
 			} else if i > 0 {
@@ -92,91 +93,164 @@ func (tree *Set[T, C]) balanceAfterInsert(newNode *treeNode[T]) {
 	}
 
 	uncle := newNode.getUncle()
-	if uncle.color == RED {
+	if uncle == nil || uncle.color == BLACK {
+		tree.rotate(newNode)
+	} else {
 		newNode.parent.color = BLACK
+		newNode.parent.parent.color = RED
 		uncle.color = BLACK
 		tree.balanceAfterInsert(newNode.parent.parent)
-	} else {
-		rotate(newNode)
 	}
 }
 
-func rotate[T any](node *treeNode[T]) {
+func (tree *Set[T, C]) rotate(node *treeNode[T]) {
 	parent := node.parent
 	grandparent := parent.parent
 	uncle := node.getUncle()
 
-	if parent.left == node {
-		if grandparent.left == parent {
-			rotateLL(parent, grandparent)
+	if grandparent.left == parent {
+		if parent.left == node {
+			tree.rotateLL(parent, grandparent)
 		} else {
-			rotateLR(node, parent, grandparent)
+			tree.rotateLR(node, parent, grandparent)
 		}
 	} else {
-		if grandparent.left == parent {
-			rotateRL(node, parent, grandparent, uncle)
+		if parent.left == node {
+			tree.rotateRL(node, parent, grandparent, uncle)
 		} else {
-			rotateRR(parent, grandparent)
+			tree.rotateRR(parent, grandparent)
 		}
 	}
 }
 
-func rotateLL[T any](parent, grandparent *treeNode[T]) {
+//todo potencial bug (it's the same with LR)
+//pColor := parent.color
+//parent.color = grandparent.color
+//grandparent.color = pColor
+func (tree *Set[T, C]) rotateLL(parent, grandparent *treeNode[T]) {
 	grandparent.left = parent.right
-	parent.parent = grandparent.parent
+
+	if grandparent.parent == nil {
+		parent.parent = nil
+		tree.root = parent
+	} else {
+		parent.parent = grandparent.parent
+		if parent.parent.left == grandparent {
+			parent.parent.left = parent
+		} else {
+			parent.parent.right = parent
+		}
+	}
 	grandparent.parent = parent
 
-	//todo potencial bug (it's the same with LR)
-	//pColor := parent.color
-	//parent.color = grandparent.color
-	//grandparent.color = pColor
 	parent.color = BLACK
 	grandparent.color = RED
 }
 
-func rotateLR[T any](node, parent, grandparent *treeNode[T]) {
-	grandparent.left = parent.right
+func (tree *Set[T, C]) rotateLR(node, parent, grandparent *treeNode[T]) {
+	grandparent.left = parent.left
 	parent.left = node.left
 	parent.right = node.right
 	node.left = parent
 	node.right = grandparent
 
+	if grandparent.parent == nil {
+		node.parent = nil
+		tree.root = node
+	} else {
+		node.parent = grandparent.parent
+		if node.parent.left == grandparent {
+			node.parent.left = node
+		} else {
+			node.parent.right = node
+		}
+	}
 	parent.parent = node
-	node.parent = grandparent.parent
+
 	grandparent.parent = node
 
 	node.color = BLACK
 	grandparent.color = RED
 }
 
-func rotateRR[T any](parent, grandparent *treeNode[T]) {
+func (tree *Set[T, C]) rotateRR(parent, grandparent *treeNode[T]) {
 	grandparent.right = parent.left
 	parent.left = grandparent
 
-	parent.parent = grandparent.parent
+	if grandparent == nil {
+		parent.parent = nil
+		tree.root = parent
+	} else {
+		parent.parent = grandparent.parent
+		if parent.parent.left == grandparent {
+			parent.parent.left = parent
+		} else {
+			parent.parent.right = parent
+		}
+	}
 	grandparent.parent = parent
 
 	parent.color = BLACK
 	grandparent.color = RED
 }
 
-func rotateRL[T any](node, parent, grandparent, uncle *treeNode[T]) {
-	temp := parent.right
-	parent.right = uncle.right
-	parent.left = uncle.left
-	uncle.right = temp
-	uncle.left = node.right
+func (tree *Set[T, C]) rotateRL(node, parent, grandparent, uncle *treeNode[T]) {
+	if uncle != nil {
+		temp := parent.right
+		parent.right = uncle.right
+		parent.left = uncle.left
+		uncle.right = temp
+		uncle.left = node.right
+		grandparent.left = uncle
+	}
 	grandparent.right = node.left
-	grandparent.left = uncle
 	node.left = grandparent
 	node.right = parent
 
-	node.parent = grandparent.parent
+	if grandparent.parent == nil {
+		node.parent = nil
+		tree.root = node
+	} else {
+		node.parent = grandparent.parent
+		if node.parent.left == grandparent {
+			node.parent.left = node
+		} else {
+			node.parent.right = node
+		}
+	}
 	grandparent.parent = node
 	parent.parent = node
 
 	node.color = BLACK
 	grandparent.color = RED
+}
+
+func (tree *Set[T, C]) print() {
+	if tree.root != nil {
+		printNode(tree.root, 0)
+	}
+}
+
+func printNode[T any](node *treeNode[T], depth uint) {
+	if node.right != nil {
+		printNode(node.right, depth+1)
+	}
+	spacing := ""
+	for i := uint(0); i < depth; i++ {
+		spacing = spacing + "    "
+	}
+	print(spacing)
+	var c string
+	if node.color == RED {
+		c = "R"
+	} else {
+		c = "B"
+	}
+	print(node.value)
+	println(c)
+	if node.left != nil {
+		printNode(node.left, depth+1)
+	}
 }
 
 // getUncle this function assumes that node has a parent that is not root
