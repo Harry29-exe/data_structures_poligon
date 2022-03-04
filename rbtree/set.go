@@ -44,7 +44,7 @@ func NewSet[T any](comparator Compare[T]) *Set[T] {
 	}
 }
 
-func (tree *Set[T]) Insert(value T) {
+func (tree *Set[T, C]) Insert(value T) {
 	var node *treeNode[T]
 	if tree.blackHeight == 0 {
 		tree.root = &treeNode[T]{
@@ -81,7 +81,7 @@ func (tree *Set[T]) Insert(value T) {
 	tree.balanceAfterInsert(node)
 }
 
-func (tree *Set[B]) balanceAfterInsert(newNode *treeNode[B]) {
+func (tree *Set[T, C]) balanceAfterInsert(newNode *treeNode[T]) {
 	if newNode.parent == nil {
 		newNode.color = BLACK
 		tree.blackHeight++
