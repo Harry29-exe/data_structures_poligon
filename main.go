@@ -2,11 +2,14 @@ package main
 
 import (
 	"data_structures_poligon/linked_list"
+	"data_structures_poligon/rbtree"
+	comparator "data_structures_poligon/utils"
 	"time"
 )
 
 func main() {
 	structPointerTest()
+	rbTreeSetTest()
 }
 
 type testStruct struct {
@@ -70,6 +73,14 @@ func linkedListTest() {
 
 	var i int = -5325
 	println(int8(i))
+}
+
+func rbTreeSetTest() {
+	tree := rbtree.NewSet[int](comparator.ComparePrimitive[int])
+	tree.Insert(4)
+	tree.Insert(2)
+	tree.Insert(7)
+
 }
 
 func test(l linked_list.LinkedList[int]) {

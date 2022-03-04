@@ -1,6 +1,8 @@
-package brtree
+package rbtree
 
-import . "data_structures_poligon/utils"
+import (
+	. "data_structures_poligon/utils"
+)
 
 type leafColor = uint8
 
@@ -9,7 +11,7 @@ const (
 	BLACK
 )
 
-type RBTreeSet[T any, C Compare[T]] struct {
+type Set[T any, C Compare[T]] struct {
 	root        *treeNode[T]
 	compare     Compare[T]
 	blackHeight uint
@@ -23,18 +25,26 @@ type treeNode[T any] struct {
 	right  *treeNode[T]
 }
 
-func newNode[T](value T, parent *treeNode[T]) *treeNode[T] {
+func newNode[T any](value T, parent *treeNode[T]) *treeNode[T] {
 	return &treeNode[T]{value: value, color: RED, parent: parent}
 }
 
-func NewPrimitiveSet[T any]() *RBTreeSet[T] {
-	return &RBTreeSet[T]{
+func NewPrimitiveSet[T any]() *Set[T] {
+	return &Set[T]{
 		root:        nil,
 		blackHeight: uint(0),
 	}
 }
 
-func (tree *RBTreeSet[T]) Insert(value T) {
+func NewSet[T any](comparator Compare[T]) *Set[T] {
+	return &Set[T]{
+		root:        nil,
+		compare:     comparator,
+		blackHeight: 0,
+	}
+}
+
+func (tree *Set[T]) Insert(value T) {
 	var node *treeNode[T]
 	if tree.blackHeight == 0 {
 		tree.root = &treeNode[T]{
@@ -71,7 +81,7 @@ func (tree *RBTreeSet[T]) Insert(value T) {
 	tree.balanceAfterInsert(node)
 }
 
-func (tree RBTreeSet[T]) balanceAfterInsert(newNode *treeNode[T]) {
+func (tree *Set[B]) balanceAfterInsert(newNode *treeNode[B]) {
 	if newNode.parent == nil {
 		newNode.color = BLACK
 		tree.blackHeight++
@@ -87,22 +97,31 @@ func (tree RBTreeSet[T]) balanceAfterInsert(newNode *treeNode[T]) {
 		uncle.color = BLACK
 		tree.balanceAfterInsert(newNode.parent.parent)
 	} else {
-
+		rotate(newNode)
 	}
 }
 
-func (tree RBTreeSet[T]) rotate(node *treeNode[T]) {
+func rotate[T any](node *treeNode[T]) {
 	parent := node.parent
 	grandparent := parent.parent
+	uncle := node.getUncle()
 
 	if parent.left == node {
 		if grandparent.left == parent {
-
+			rotateLL(parent, grandparent)
+		} else {
+			rotateLR(node, parent, grandparent)
+		}
+	} else {
+		if grandparent.left == parent {
+			rotateRL(node, parent, grandparent, uncle)
+		} else {
+			rotateRR(parent, grandparent)
 		}
 	}
 }
 
-func rotateLL[T](node, parent, grandparent *treeNode[T]) {
+func rotateLL[T any](parent, grandparent *treeNode[T]) {
 	grandparent.left = parent.right
 	parent.parent = grandparent.parent
 	grandparent.parent = parent
@@ -115,7 +134,7 @@ func rotateLL[T](node, parent, grandparent *treeNode[T]) {
 	grandparent.color = RED
 }
 
-func rotateLR[T](node, parent, grandparent *treeNode[T]) {
+func rotateLR[T any](node, parent, grandparent *treeNode[T]) {
 	grandparent.left = parent.right
 	parent.left = node.left
 	parent.right = node.right
@@ -130,12 +149,34 @@ func rotateLR[T](node, parent, grandparent *treeNode[T]) {
 	grandparent.color = RED
 }
 
-func rotateRR[T](node, parent, grandparent *treeNode[T]) {
+func rotateRR[T any](parent, grandparent *treeNode[T]) {
 	grandparent.right = parent.left
 	parent.left = grandparent
 
 	parent.parent = grandparent.parent
+	grandparent.parent = parent
 
+	parent.color = BLACK
+	grandparent.color = RED
+}
+
+func rotateRL[T any](node, parent, grandparent, uncle *treeNode[T]) {
+	temp := parent.right
+	parent.right = uncle.right
+	parent.left = uncle.left
+	uncle.right = temp
+	uncle.left = node.right
+	grandparent.right = node.left
+	grandparent.left = uncle
+	node.left = grandparent
+	node.right = parent
+
+	node.parent = grandparent.parent
+	grandparent.parent = node
+	parent.parent = node
+
+	node.color = BLACK
+	grandparent.color = RED
 }
 
 // getUncle this function assumes that node has a parent that is not root
