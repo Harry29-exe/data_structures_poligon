@@ -8,14 +8,34 @@ import (
 var values = [20]int{0, -5, 5, 523, -66, -75, 7, 2, 67, 33, 55, 32, 99, 123, 223, 360, -4, 94, -88, -120}
 
 func TestInsert(t *testing.T) {
+	tree := getSetWithDefaultValues()
+
+	verifyTreeStructure[int](tree, t)
+}
+
+func TestContains(t *testing.T) {
+	tree := getSetWithDefaultValues()
+
+	for _, v := range values {
+		if !tree.Contains(v) {
+			t.Error("Tree should contain:", v, "but tree.Contains return false")
+		}
+	}
+
+	if tree.Contains(10000) {
+		t.Error()
+	}
+	if tree.Contains(-10000) {
+		t.Error()
+	}
+}
+
+func getSetWithDefaultValues() *Set[int, comparator.Compare[int]] {
 	tree := NewSet[int](comparator.ComparePrimitive[int])
 	for _, val := range values {
 		tree.Insert(val)
-		tree.print()
-		println("\n\n")
 	}
-
-	verifyTreeStructure[int](tree, t)
+	return tree
 }
 
 func verifyTreeStructure[T any, C comparator.Compare[T]](tree *Set[T, C], t *testing.T) {

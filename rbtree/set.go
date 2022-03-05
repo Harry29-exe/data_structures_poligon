@@ -25,17 +25,6 @@ type treeNode[T any] struct {
 	right  *treeNode[T]
 }
 
-func newNode[T any](value T, parent *treeNode[T]) *treeNode[T] {
-	return &treeNode[T]{value: value, color: RED, parent: parent}
-}
-
-func NewPrimitiveSet[T any]() *Set[T] {
-	return &Set[T]{
-		root:        nil,
-		blackHeight: uint(0),
-	}
-}
-
 func NewSet[T any](comparator Compare[T]) *Set[T] {
 	return &Set[T]{
 		root:        nil,
@@ -56,7 +45,7 @@ func (tree *Set[T, C]) Insert(value T) {
 		node = tree.root
 		for {
 			i := tree.compare(node.value, value)
-			if i < 0 {
+			if i > 0 {
 				if node.left != nil {
 					node = node.left
 					continue
@@ -65,7 +54,7 @@ func (tree *Set[T, C]) Insert(value T) {
 				node = node.left
 				break
 
-			} else if i > 0 {
+			} else if i < 0 {
 				if node.right != nil {
 					node = node.right
 					continue
@@ -80,6 +69,33 @@ func (tree *Set[T, C]) Insert(value T) {
 	}
 
 	tree.balanceAfterInsert(node)
+}
+
+func (tree *Set[T, C]) Contains(value T) bool {
+	if tree.root == nil {
+		return false
+	}
+	node := tree.root
+	for {
+		v := tree.compare(node.value, value)
+		if v < 0 {
+			if node.right != nil {
+				node = node.right
+				continue
+			} else {
+				return false
+			}
+		} else if v > 0 {
+			if node.left != nil {
+				node = node.left
+				continue
+			} else {
+				return false
+			}
+		} else {
+			return true
+		}
+	}
 }
 
 func (tree *Set[T, C]) balanceAfterInsert(newNode *treeNode[T]) {
@@ -129,6 +145,7 @@ func (tree *Set[T, C]) rotate(node *treeNode[T]) {
 //grandparent.color = pColor
 func (tree *Set[T, C]) rotateLL(parent, grandparent *treeNode[T]) {
 	grandparent.left = parent.right
+	parent.right = grandparent
 
 	if grandparent.parent == nil {
 		parent.parent = nil
@@ -225,6 +242,10 @@ func (tree *Set[T, C]) rotateRL(node, parent, grandparent, uncle *treeNode[T]) {
 
 	node.color = BLACK
 	grandparent.color = RED
+}
+
+func newNode[T any](value T, parent *treeNode[T]) *treeNode[T] {
+	return &treeNode[T]{value: value, color: RED, parent: parent}
 }
 
 func (tree *Set[T, C]) print() {
