@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var values = [10]int{0, -5, 5, 523, -66, -75, 7, 2, 67, 33}
+var values = [20]int{0, -5, 5, 523, -66, -75, 7, 2, 67, 33, 55, 32, 99, 123, 223, 360, -4, 94, -88, -120}
 
 func TestInsert(t *testing.T) {
 	tree := NewSet[int](comparator.ComparePrimitive[int])

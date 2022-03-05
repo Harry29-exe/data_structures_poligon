@@ -177,7 +177,7 @@ func (tree *Set[T, C]) rotateRR(parent, grandparent *treeNode[T]) {
 	grandparent.right = parent.left
 	parent.left = grandparent
 
-	if grandparent == nil {
+	if grandparent.parent == nil {
 		parent.parent = nil
 		tree.root = parent
 	} else {
@@ -201,7 +201,9 @@ func (tree *Set[T, C]) rotateRL(node, parent, grandparent, uncle *treeNode[T]) {
 		parent.left = uncle.left
 		uncle.right = temp
 		uncle.left = node.right
-		grandparent.left = uncle
+	} else {
+		parent.left = nil
+		parent.right = nil
 	}
 	grandparent.right = node.left
 	node.left = grandparent
