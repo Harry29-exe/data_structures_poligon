@@ -7,14 +7,16 @@ import (
 
 var values = [20]int{0, -5, 5, 523, -66, -75, 7, 2, 67, 33, 55, 32, 99, 123, 223, 360, -4, 94, -88, -120}
 
+const printDebug = false
+
 func TestInsert(t *testing.T) {
-	tree := getSetWithDefaultValues()
+	tree := getSetWithDefaultValues(t)
 
 	verifyTreeStructure[int](tree, t)
 }
 
 func TestContains(t *testing.T) {
-	tree := getSetWithDefaultValues()
+	tree := getSetWithDefaultValues(t)
 
 	for _, v := range values {
 		if !tree.Contains(v) {
@@ -30,10 +32,40 @@ func TestContains(t *testing.T) {
 	}
 }
 
-func getSetWithDefaultValues() *Set[int, comparator.Compare[int]] {
+func TestSet_Iterator(t *testing.T) {
+	tree := getSetWithDefaultValues(t)
+	it := tree.Iterator()
+	valuesMap := make(map[int]int)
+	for _, v := range values {
+		valuesMap[v] = v
+	}
+
+	for it.HasNext() {
+		v := it.Next()
+		_, ok := valuesMap[v]
+		if !ok {
+			t.Error("Iterator returned value which value map does not contain")
+		} else {
+			delete(valuesMap, v)
+		}
+	}
+
+	if len(valuesMap) != 0 {
+		t.Error("Iterator does not contain all values")
+	}
+}
+
+func getSetWithDefaultValues(t *testing.T) *Set[int, comparator.Compare[int]] {
 	tree := NewSet[int](comparator.ComparePrimitive[int])
 	for _, val := range values {
 		tree.Insert(val)
+		if printDebug {
+			tree.print()
+			print("\n\n\n")
+		}
+		if !tree.Contains(val) {
+			t.Error("Tree does not contain inserted value:", val)
+		}
 	}
 	return tree
 }
@@ -50,6 +82,10 @@ func verifyTreeStructure[T any, C comparator.Compare[T]](tree *Set[T, C], t *tes
 }
 
 func verifyNode[T any](node *treeNode[T], nodeBlackHeight uint, t *testing.T) uint {
+	if nodeBlackHeight > 0 && &node.parent == nil {
+		t.Error("Node with value:", node.value, "does not have parent")
+	}
+
 	if node.color == RED {
 		if node.left != nil && node.left.color == RED {
 			t.Error("Node with value ", node.value, " is RED and has left RED child")

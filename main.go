@@ -1,8 +1,8 @@
 package main
 
 import (
-	"data_structures_poligon/linked_list"
-	"data_structures_poligon/rbtree"
+	"data_structures_poligon/collection/linked_list"
+	"data_structures_poligon/collection/rbtree"
 	comparator "data_structures_poligon/utils"
 	"time"
 )
@@ -10,6 +10,11 @@ import (
 func main() {
 	structPointerTest()
 	rbTreeSetTest()
+
+	arr1 := [5]int{1, 2, 3, 4, 5}
+	arr2 := arr1
+	arr2[2] = 99
+	println(arr1[2])
 }
 
 type testStruct struct {
