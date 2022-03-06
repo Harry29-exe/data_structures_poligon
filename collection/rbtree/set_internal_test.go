@@ -2,6 +2,7 @@ package rbtree
 
 import (
 	comparator "data_structures_poligon/utils"
+	"math/rand"
 	"testing"
 )
 
@@ -13,6 +14,12 @@ func TestInsert(t *testing.T) {
 	tree := getSetWithDefaultValues(t)
 
 	verifyTreeStructure[int](tree, t)
+}
+
+func TestInsertWithGeneratedValues(t *testing.T) {
+	tree := getSetWithGeneratedValues(t)
+
+	verifyTreeStructure(tree, t)
 }
 
 func TestContains(t *testing.T) {
@@ -57,6 +64,27 @@ func TestSet_Iterator(t *testing.T) {
 
 func getSetWithDefaultValues(t *testing.T) *Set[int, comparator.Compare[int]] {
 	tree := NewSet[int](comparator.ComparePrimitive[int])
+	for _, val := range values {
+		tree.Insert(val)
+		if printDebug {
+			tree.print()
+			print("\n\n\n")
+		}
+		if !tree.Contains(val) {
+			t.Error("Tree does not contain inserted value:", val)
+		}
+	}
+	return tree
+}
+
+func getSetWithGeneratedValues(t *testing.T) *Set[int, comparator.Compare[int]] {
+	tree := NewSet[int](comparator.ComparePrimitive[int])
+	values := [10000]int{}
+	randGenerator := rand.New(rand.NewSource(0))
+	for i, _ := range values {
+		values[i] = randGenerator.Int()
+	}
+
 	for _, val := range values {
 		tree.Insert(val)
 		if printDebug {

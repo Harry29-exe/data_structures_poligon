@@ -179,15 +179,11 @@ func (tree *Set[T, C]) rotateLL(parent, grandparent *treeNode[T]) {
 }
 
 func (tree *Set[T, C]) rotateLR(node, parent, grandparent *treeNode[T]) {
-	grandparent.left = parent.left
+	grandparent.left = node.right
 	if grandparent.left != nil {
 		grandparent.left.parent = grandparent
 	}
-	parent.left = node.left
-	if parent.left != nil {
-		parent.left.parent = parent
-	}
-	parent.right = node.right
+	parent.right = node.left
 	if parent.right != nil {
 		parent.right.parent = parent
 	}
@@ -211,6 +207,40 @@ func (tree *Set[T, C]) rotateLR(node, parent, grandparent *treeNode[T]) {
 	node.color = BLACK
 	grandparent.color = RED
 }
+
+//func (tree *Set[T, C]) rotateLR(node, parent, grandparent *treeNode[T]) {
+//	grandparent.left = parent.left
+//	if grandparent.left != nil {
+//		grandparent.left.parent = grandparent
+//	}
+//	parent.left = node.left
+//	if parent.left != nil {
+//		parent.left.parent = parent
+//	}
+//	parent.right = node.right
+//	if parent.right != nil {
+//		parent.right.parent = parent
+//	}
+//	node.left = parent
+//	parent.parent = node
+//
+//	if grandparent.parent == nil {
+//		node.parent = nil
+//		tree.root = node
+//	} else {
+//		node.parent = grandparent.parent
+//		if node.parent.left == grandparent {
+//			node.parent.left = node
+//		} else {
+//			node.parent.right = node
+//		}
+//	}
+//	node.right = grandparent
+//	grandparent.parent = node
+//
+//	node.color = BLACK
+//	grandparent.color = RED
+//}
 
 func (tree *Set[T, C]) rotateRR(parent, grandparent *treeNode[T]) {
 	grandparent.right = parent.left
@@ -237,32 +267,13 @@ func (tree *Set[T, C]) rotateRR(parent, grandparent *treeNode[T]) {
 }
 
 func (tree *Set[T, C]) rotateRL(node, parent, grandparent, uncle *treeNode[T]) {
-	if uncle != nil {
-		temp := parent.right
-		parent.right = uncle.right
-		if parent.right != nil {
-			parent.right.parent = parent
-		}
-		parent.left = uncle.left
-		if parent.left != nil {
-			parent.left.parent = parent
-		}
-		uncle.right = temp
-		if uncle.right != nil {
-			uncle.right.parent = uncle
-		}
-		uncle.left = node.right
-		if uncle.left != nil {
-			uncle.left.parent = uncle
-		}
-	} else {
-		parent.left = nil
-		parent.right = nil
-	}
-
 	grandparent.right = node.left
 	if grandparent.right != nil {
 		grandparent.right.parent = grandparent
+	}
+	parent.left = node.right
+	if parent.left != nil {
+		parent.left.parent = parent
 	}
 
 	node.right = parent
@@ -285,6 +296,56 @@ func (tree *Set[T, C]) rotateRL(node, parent, grandparent, uncle *treeNode[T]) {
 	node.color = BLACK
 	grandparent.color = RED
 }
+
+//func (tree *Set[T, C]) rotateRL(node, parent, grandparent, uncle *treeNode[T]) {
+//	if uncle != nil {
+//		temp := parent.right
+//		parent.right = uncle.right
+//		if parent.right != nil {
+//			parent.right.parent = parent
+//		}
+//		parent.left = uncle.left
+//		if parent.left != nil {
+//			parent.left.parent = parent
+//		}
+//		uncle.right = temp
+//		if uncle.right != nil {
+//			uncle.right.parent = uncle
+//		}
+//		uncle.left = node.right
+//		if uncle.left != nil {
+//			uncle.left.parent = uncle
+//		}
+//	} else {
+//		parent.left = nil
+//		parent.right = nil
+//	}
+//
+//	grandparent.right = node.left
+//	if grandparent.right != nil {
+//		grandparent.right.parent = grandparent
+//	}
+//
+//	node.right = parent
+//	parent.parent = node
+//
+//	if grandparent.parent == nil {
+//		node.parent = nil
+//		tree.root = node
+//	} else {
+//		node.parent = grandparent.parent
+//		if node.parent.left == grandparent {
+//			node.parent.left = node
+//		} else {
+//			node.parent.right = node
+//		}
+//	}
+//	node.left = grandparent
+//	grandparent.parent = node
+//
+//	node.color = BLACK
+//	grandparent.color = RED
+//}
 
 func (tree *Set[T, C]) print() {
 	if tree.root != nil {
